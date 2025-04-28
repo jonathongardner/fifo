@@ -2,9 +2,12 @@ package identifiers
 
 import (
 	"encoding/hex"
+	"fmt"
 
 	"github.com/jonathongardner/fifo/filetype"
 )
+
+var ErrWriterNotClosed = fmt.Errorf("writer is not closed")
 
 type Identifiers struct {
 	Md5      string            `json:"md5,omitempty"`
@@ -14,7 +17,6 @@ type Identifiers struct {
 	Entropy  float64           `json:"entropy,omitempty"`
 	Filetype filetype.Filetype `json:"filetype,omitempty"`
 	Size     int64             `json:"size,omitempty"`
-	GzipSize int64             `json:"gzipSize,omitempty"`
 }
 
 // Identifiers returns the info of the writer that "identifies" the data
@@ -22,7 +24,11 @@ type Identifiers struct {
 // it returns an empty string if the hash is not calculated
 // it returns 0 if the entropy is not calculated
 // it returns nil if the file type is not calculated
-func (mw *Writer) Identifiers() Identifiers {
+func (mw *Writer) Identifiers() (Identifiers, error) {
+	if !mw.closed {
+		return Identifiers{}, ErrWriterNotClosed
+	}
+
 	toReturn := Identifiers{}
 	if mw.md5 != nil {
 		toReturn.Md5 = hex.EncodeToString(mw.md5.Sum(nil))
@@ -42,9 +48,6 @@ func (mw *Writer) Identifiers() Identifiers {
 	if mw.ftype {
 		toReturn.Filetype = filetype.NewFiletypeFromCached(mw.cache)
 	}
-	if mw.gzipCache != nil {
-		toReturn.GzipSize = mw.gzipCache.Size()
-	}
 	toReturn.Size = mw.cache.Size()
-	return toReturn
+	return toReturn, nil
 }

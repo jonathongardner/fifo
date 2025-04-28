@@ -35,3 +35,8 @@ func (w *Writer) Entropy() float64 {
 	}
 	return ent
 }
+
+func (w *Writer) Reset() {
+	w.frequency = [256]uint64{}
+	w.count = 0
+}

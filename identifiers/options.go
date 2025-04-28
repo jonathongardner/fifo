@@ -8,14 +8,13 @@ import (
 
 // Options is a struct that contains options for the Writer
 type Options struct {
-	Md5           bool
-	Sha1          bool
-	Sha256        bool
-	Sha512        bool
-	Entropy       bool
-	Filetype      bool
-	CacheSize     int64 // use 0 for no cache
-	GzipCacheSize int64 // use 0 for no cache
+	Md5       bool
+	Sha1      bool
+	Sha256    bool
+	Sha512    bool
+	Entropy   bool
+	Filetype  bool
+	CacheSize int64 // use 0 for no cache
 }
 
 // NewDefultOptions creates a new Options struct with default values
@@ -29,7 +28,6 @@ func NewDefultOptions() Options {
 		true, // entropy
 		true, // filetype
 		0,    // cache size
-		0,    // gzip cache size
 	)
 }
 
@@ -42,21 +40,19 @@ func NewChecksumOptions() Options {
 		false, // entropy
 		false, // filetype
 		0,     // cache size
-		0,     // gzip cache size
 	)
 }
 
 // NewOptions creates a new Options struct with the given options
-func NewOptions(md5, sha1, sha256, sha512, entropy, filetype bool, cacheSize, gzipCacheSize int64) Options {
+func NewOptions(md5, sha1, sha256, sha512, entropy, filetype bool, cacheSize int64) Options {
 	return Options{
-		Md5:           md5,
-		Sha1:          sha1,
-		Sha256:        sha256,
-		Sha512:        sha512,
-		Entropy:       entropy,
-		Filetype:      filetype,
-		CacheSize:     cacheSize,
-		GzipCacheSize: gzipCacheSize,
+		Md5:       md5,
+		Sha1:      sha1,
+		Sha256:    sha256,
+		Sha512:    sha512,
+		Entropy:   entropy,
+		Filetype:  filetype,
+		CacheSize: cacheSize,
 	}
 }
 
@@ -99,14 +95,6 @@ func (o Options) UpdateFiletype(filetype bool) Options {
 // UpdateCacheSize updates the cache size of the Options struct
 func (o Options) UpdateCacheSize(size int64) Options {
 	o.CacheSize = size
-	return o
-}
-
-// UpdateCacheSize updates the cache size of the Options struct
-// CacheSize is used to caclulate the file type, if CacheSize is 0
-// the default filetype cache size is used.
-func (o Options) UpdateGzipCacheSize(size int64) Options {
-	o.GzipCacheSize = size
 	return o
 }
 

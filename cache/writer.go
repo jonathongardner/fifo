@@ -59,6 +59,6 @@ func (mw *Writer) NewReader() io.Reader {
 // Reset resets the writer
 func (mw *Writer) Reset() error {
 	mw.size = 0
-	mw.data = make([]byte, 0)
+	mw.data = mw.data[:0] // reset the slice size without allocating new memory
 	return nil
 }
