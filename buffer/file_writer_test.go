@@ -15,6 +15,23 @@ func TestFiletypeWriter(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 	toWrite1 := []byte("Something cool")
 
+	t.Run("writes no data", func(t *testing.T) {
+		file := filepath.Join(tmpDir, "test-no-data")
+
+		assertFileDoesNotExist(t, file)
+
+		w, err := NewFileWriter(file, len(toWrite1)+1)
+		if err != nil {
+			t.Fatalf("Failed to create new writer %v", err)
+		}
+		assertFileDoesNotExist(t, file)
+
+		if err := w.Close(); err != nil {
+			t.Fatalf("Failed to close %v", err)
+		}
+		assertFileExists(t, file, []byte{})
+	})
+
 	t.Run("writes small data", func(t *testing.T) {
 		file := filepath.Join(tmpDir, "test1")
 

@@ -40,6 +40,18 @@ func (w *FileWriter) create() error {
 	w.file = file
 	return nil
 }
+
+func (w *FileWriter) flush() error {
+	if err := w.create(); err != nil {
+		return fmt.Errorf("failed to create file to write to: %w", err)
+	}
+	_, err := w.file.Write(w.buffer)
+	if err != nil {
+		return err
+	}
+	w.buffer = w.buffer[:0] // Clear buffer
+	return nil
+}
 func (w *FileWriter) checkErr() error {
 	if w.max == -1 {
 		return os.ErrClosed
@@ -65,18 +77,6 @@ func (w *FileWriter) Write(data []byte) (int, error) {
 		}
 	}
 	return size, nil
-}
-
-func (w *FileWriter) flush() error {
-	if err := w.create(); err != nil {
-		return fmt.Errorf("failed to create file to write to: %w", err)
-	}
-	_, err := w.file.Write(w.buffer)
-	if err != nil {
-		return err
-	}
-	w.buffer = w.buffer[:0] // Clear buffer
-	return nil
 }
 
 // Flush write to file if buffered data
@@ -114,7 +114,7 @@ func (w *FileWriter) Close() error {
 		return nil
 	}
 
-	if err := w.Flush(); err != nil {
+	if err := w.flush(); err != nil {
 		return err
 	}
 	if err := w.file.Close(); err != nil {
