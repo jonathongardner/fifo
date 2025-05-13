@@ -9,7 +9,7 @@ import (
 )
 
 // https://github.com/gabriel-vasile/mimetype/blob/master/mimetype.go#L17
-var maxBytesFileDetect uint32 = 65536 // 2^16
+var maxBytesFileDetect uint32 = 3072
 
 // SetMaxBytesFileDetect sets the maximum number of bytes to read for file type detection.
 func SetMaxBytesFileDetect(maxBytes uint32) {

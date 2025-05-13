@@ -2,7 +2,6 @@ package cache
 
 import (
 	"bytes"
-	"io"
 	// log "github.com/sirupsen/logrus"
 )
 
@@ -51,14 +50,26 @@ func (mw *Writer) Bytes() []byte {
 	return mw.data
 }
 
-// NewReader Create a new reader from the current data
-func (mw *Writer) NewReader() io.Reader {
-	return bytes.NewReader(mw.data)
-}
-
 // Reset resets the writer
 func (mw *Writer) Reset() error {
 	mw.size = 0
 	mw.data = mw.data[:0] // reset the slice size without allocating new memory
 	return nil
+}
+
+type customCache struct {
+	*bytes.Reader
+}
+
+func (c customCache) Close() error {
+	return nil
+}
+
+func (c customCache) IsCached() bool {
+	return true
+}
+
+// NewReader Create a new reader from the current data
+func (mw *Writer) NewReader() customCache {
+	return customCache{bytes.NewReader(mw.data)}
 }

@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestFiletypeWriter(t *testing.T) {
+func TestWriter(t *testing.T) {
 	toWrite1 := []byte("Something cool")
 	toWrite2 := []byte("Something else cool")
 
