@@ -1,25 +1,43 @@
 package cache
 
 import (
+	"fmt"
 	"io"
 	"os"
 	// log "github.com/sirupsen/logrus"
 )
 
-// Writer is a writer that caches the data in it, up to a certain size
-// io.Copy() or io.MultiWriter() to detect the file type of a stream
+var ErrAlreadyOpen = fmt.Errorf("file already open")
+
+// File is a wrapper around os.File that caches the data read from it
 type File struct {
 	cache *Writer
 	file  *os.File
 }
 
-// NewWriter creates a new Cached writer
+// Open creates a new file object and opens the file at the given path
 func Open(path string, cache int64) (*File, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	return &File{file: file, cache: NewWriter(cache)}, nil
+}
+
+// NewFile creates a new file object but does NOT open a file
+func NewFile(cache int64) *File {
+	return &File{file: nil, cache: NewWriter(cache)}
+}
+
+// Open opens the file at the given path
+// It returns an error if the file is already open or if there is an error opening the file
+func (f *File) Open(path string) error {
+	if f.file != nil {
+		return ErrAlreadyOpen
+	}
+	var err error
+	f.file, err = os.Open(path)
+	return err
 }
 
 func (f *File) Read(p []byte) (int, error) {
@@ -34,6 +52,17 @@ func (f *File) Read(p []byte) (int, error) {
 	}
 
 	return n1, err1
+}
+
+func (f *File) Reset() error {
+	if err := f.cache.Reset(); err != nil {
+		return err
+	}
+	if f.file == nil {
+		return nil
+	}
+	defer func() { f.file = nil }()
+	return f.file.Close()
 }
 
 type ReadSeekCloseCacher interface {
