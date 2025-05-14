@@ -162,3 +162,43 @@ func TestResetWriter(t *testing.T) {
 		assertIdentifiers(t, exp2, i)
 	})
 }
+
+func TestAddWriter(t *testing.T) {
+	toWrite := []byte("Something cool")
+
+	var buf1 bytes.Buffer
+	w := NewWriter(&buf1)
+	var buf2 bytes.Buffer
+	w.AddWriter(&buf2)
+
+	if _, err := w.Write(toWrite); err != nil {
+		t.Fatalf("failed to write data %v", err)
+	}
+	if err := w.Close(); err != nil {
+		t.Fatalf("failed to close writer %v", err)
+	}
+
+	if !bytes.Equal(buf1.Bytes(), toWrite) {
+		t.Errorf("data mismatch, expected %v, got %v", toWrite, buf1.Bytes())
+	}
+
+	if !bytes.Equal(buf1.Bytes(), toWrite) {
+		t.Errorf("data mismatch, expected %v, got %v", toWrite, buf1.Bytes())
+	}
+
+	exp := Identifiers{
+		Md5:      "db5ee56e2cab72f4e46bdd60965bef31",
+		Sha1:     "77e9c3f828f8773ba2854731eddff8d5daef99c0",
+		Sha256:   "2f693b6d594eccd0cc94682cc5690324d369186d26097f8eb611231dfd8fd8ab",
+		Sha512:   "dc17c6f834c2ae2af8f25d2f275e2b7ba7280c22da1cf96475888b038ad96872e771f43b87e722507773c54973a0794f7b67ee07fcbc50bf28e3b369a4801819",
+		Entropy:  3.46,
+		Filetype: filetype.Filetype{Mimetype: "text/plain; charset=utf-8"},
+		Size:     14,
+	}
+
+	i, err := w.Identifiers()
+	if err != nil {
+		t.Fatalf("failed to get identifiers %v", err)
+	}
+	assertIdentifiers(t, exp, i)
+}

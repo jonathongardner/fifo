@@ -71,6 +71,11 @@ func (mw *Writer) Write(p []byte) (int, error) {
 	return mw.mw.Write(p)
 }
 
+func (iw *Writer) AddWriter(w io.Writer) {
+	// multiwriter will flatten out the writers
+	iw.mw = io.MultiWriter(w, iw.mw)
+}
+
 func (mw *Writer) Cache() *cache.Writer {
 	return mw.cache
 }
